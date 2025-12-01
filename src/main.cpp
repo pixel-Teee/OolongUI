@@ -3,6 +3,8 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL.h>
 
+#include <string>
+
 SDL_Window* window;
 SDL_GPUDevice* device;
 SDL_GPUBuffer* vertexBuffer;//顶点缓冲区
@@ -33,6 +35,54 @@ struct  UniformBuffer
 
 static UniformBuffer timeUniform{};
 
+//convert utf16 to utf8
+char* covertUtf16ToUtf8(const wchar_t* wStr)
+{
+	const char* srcEncoding = "UTF-16LE"; // 指定源编码
+	const char* dstEncoding = "UTF-8";    // 指定目标编码
+	const wchar_t* wstr = wStr; // 你的宽字符串
+	size_t wstr_len = SDL_wcslen(wStr); // 宽字符串的字符数（非字节数）
+	// 进行转换。注意：SDL_iconv_string需要传入以null结尾的字符串。
+	char* utf8Str = SDL_iconv_string(dstEncoding, srcEncoding,
+		(const char*)wstr, (wstr_len + 1) * sizeof(wchar_t));
+	return utf8Str;
+}
+
+bool isDirectoyExist(const wchar_t* filePath)
+{
+	const char* utf8Str = covertUtf16ToUtf8(filePath);
+	if (SDL_GetPathInfo(utf8Str, nullptr))
+	{
+		SDL_free((void*)utf8Str);
+		return true;
+	}
+	else
+	{
+		SDL_free((void*)utf8Str);
+		return false;
+	}
+}
+
+void* OolongLoadFile(const wchar_t* filePath, size_t* fileSize)
+{
+	if (isDirectoyExist(filePath))
+	{
+		const char* utf8Str = covertUtf16ToUtf8(filePath);
+		void* buffer = SDL_LoadFile(utf8Str, fileSize);
+		SDL_free((void*)utf8Str);
+		return buffer;
+	}
+	else
+	{
+		std::wstring relativeFilePath = L"../../";
+		relativeFilePath += filePath;
+		const char* utf8Str = covertUtf16ToUtf8(relativeFilePath.c_str());
+		void* buffer = SDL_LoadFile(utf8Str, fileSize);
+		SDL_free((void*)utf8Str);
+		return buffer;
+	}
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 {
 	//create a window
@@ -56,7 +106,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 
 	//加载着色器代码
 	size_t vertexCodeSize;
-	void* vertexCode = SDL_LoadFile("shaders/vertex.spv", &vertexCodeSize);
+	void* vertexCode = OolongLoadFile(L"shaders/vertex.spv", &vertexCodeSize);
 
 	//创建顶点着色器对象
 	SDL_GPUShaderCreateInfo vertexInfo{};
@@ -77,7 +127,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 
 	//加载片段着色器代码
 	size_t fragmentCodeSize;
-	void* fragmentCode = SDL_LoadFile("shaders/fragment.spv", &fragmentCodeSize);
+	void* fragmentCode = OolongLoadFile(L"shaders/fragment.spv", &fragmentCodeSize);
 
 	//创建片段着色器
 	SDL_GPUShaderCreateInfo fragmentInfo{};
