@@ -3,6 +3,8 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL.h>
 
+#include <SDL3_shadercross/SDL_shadercross.h>
+
 #include <string>
 
 SDL_Window* window;
@@ -92,7 +94,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	//1.着色器格式
 	//2.gpu 调试层
 	//3.驱动名称
-	device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV, false, NULL);
+	device = SDL_CreateGPUDevice(SDL_ShaderCross_GetSPIRVShaderFormats(), false, NULL);
 	if (device == nullptr)
 	{
 		SDL_LogError(SDL_LogCategory::SDL_LOG_CATEGORY_GPU, "create gpu device error");
@@ -109,41 +111,67 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	void* vertexCode = OolongLoadFile(L"shaders/vertex.spv", &vertexCodeSize);
 
 	//创建顶点着色器对象
-	SDL_GPUShaderCreateInfo vertexInfo{};
-	vertexInfo.code = (Uint8*)vertexCode;
-	vertexInfo.code_size = vertexCodeSize;
-	vertexInfo.entrypoint = "main";
-	vertexInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
-	vertexInfo.stage = SDL_GPU_SHADERSTAGE_VERTEX;
-	vertexInfo.num_samplers = 0;
-	vertexInfo.num_storage_buffers = 0;
-	vertexInfo.num_storage_textures = 0;
-	vertexInfo.num_uniform_buffers = 0;
-
-	SDL_GPUShader* vertexShader = SDL_CreateGPUShader(device, &vertexInfo);
-
-	//释放文件
-	SDL_free(vertexCode);
+	//SDL_GPUShaderCreateInfo vertexInfo{};
+	//vertexInfo.code = (Uint8*)vertexCode;
+	//vertexInfo.code_size = vertexCodeSize;
+	//vertexInfo.entrypoint = "main";
+	//vertexInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
+	//vertexInfo.stage = SDL_GPU_SHADERSTAGE_VERTEX;
+	//vertexInfo.num_samplers = 0;
+	//vertexInfo.num_storage_buffers = 0;
+	//vertexInfo.num_storage_textures = 0;
+	//vertexInfo.num_uniform_buffers = 0;
+	//
+	//SDL_GPUShader* vertexShader = SDL_CreateGPUShader(device, &vertexInfo);
+	//
+	////释放文件
+	//SDL_free(vertexCode);
 
 	//加载片段着色器代码
 	size_t fragmentCodeSize;
 	void* fragmentCode = OolongLoadFile(L"shaders/fragment.spv", &fragmentCodeSize);
 
 	//创建片段着色器
-	SDL_GPUShaderCreateInfo fragmentInfo{};
-	fragmentInfo.code = (Uint8*)fragmentCode;
-	fragmentInfo.code_size = fragmentCodeSize;
+	//SDL_GPUShaderCreateInfo fragmentInfo{};
+	//fragmentInfo.code = (Uint8*)fragmentCode;
+	//fragmentInfo.code_size = fragmentCodeSize;
+	//fragmentInfo.entrypoint = "main";
+	//fragmentInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
+	//fragmentInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
+	//fragmentInfo.num_samplers = 0;
+	//fragmentInfo.num_storage_buffers = 0;
+	//fragmentInfo.num_storage_textures = 0;
+	//fragmentInfo.num_uniform_buffers = 1;
+	//
+	//SDL_GPUShader* fragmentShader = SDL_CreateGPUShader(device, &fragmentInfo);
+	//
+	////释放文件
+	//SDL_free(fragmentCode);
+
+	
+	SDL_ShaderCross_SPIRV_Info vertexInfo{};
+	vertexInfo.bytecode = (Uint8*)vertexCode;
+	vertexInfo.bytecode_size = vertexCodeSize;
+	vertexInfo.entrypoint = "main";
+	vertexInfo.shader_stage = SDL_SHADERCROSS_SHADERSTAGE_VERTEX;
+
+	SDL_ShaderCross_GraphicsShaderMetadata* vertexMetadata = SDL_ShaderCross_ReflectGraphicsSPIRV((Uint8*)vertexCode, vertexCodeSize, 0);
+
+	SDL_GPUShader* vertexShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(device, &vertexInfo, &vertexMetadata->resource_info, 0);
+
+	SDL_free(vertexMetadata);
+
+	SDL_ShaderCross_SPIRV_Info fragmentInfo{};
+	fragmentInfo.bytecode = (Uint8*)fragmentCode;
+	fragmentInfo.bytecode_size = fragmentCodeSize;
 	fragmentInfo.entrypoint = "main";
-	fragmentInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
-	fragmentInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
-	fragmentInfo.num_samplers = 0;
-	fragmentInfo.num_storage_buffers = 0;
-	fragmentInfo.num_storage_textures = 0;
-	fragmentInfo.num_uniform_buffers = 1;
+	fragmentInfo.shader_stage = SDL_SHADERCROSS_SHADERSTAGE_FRAGMENT;
 
-	SDL_GPUShader* fragmentShader = SDL_CreateGPUShader(device, &fragmentInfo);
-
-	//释放文件
+	SDL_ShaderCross_GraphicsShaderMetadata* framgentMetadata = SDL_ShaderCross_ReflectGraphicsSPIRV((Uint8*)fragmentCode, fragmentCodeSize, 0);
+	SDL_GPUShader* fragmentShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(device, &fragmentInfo, &framgentMetadata->resource_info, 0);
+	SDL_free(framgentMetadata);
+	
+	SDL_free(vertexCode);
 	SDL_free(fragmentCode);
 
 	// 创建图形管线
