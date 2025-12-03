@@ -2,6 +2,14 @@
 
 namespace Oolong
 {
+	struct ResourceBase : public std::enable_shared_from_this<ResourceBase> {
+		virtual ~ResourceBase() = default;
+		virtual void scheduleForDeletion() = 0;
+
+		//持有对其他资源的强引用
+		std::vector<std::shared_ptr<ResourceBase>> dependencies;
+	};
+
 	class ResourceManager;
 	template<typename ResourceType, typename Deleter>
 	class ResourceWrapper
@@ -17,6 +25,14 @@ namespace Oolong
 				//这里根据 deleter 类型进行构造对象
 				m_manager->scheduleForDeletion(m_handle, m_createFrame, Deleter{});
 			}
+
+			//dependencies 会在这里析构
+		}
+
+		//添加一个依赖资源
+		void addDependency(std::shared_ptr<ResourceBase> dependentResource)
+		{
+			dependencies.push_back(std::move(dependentResource));
 		}
 
 		ResourceType get() const { return m_handle; }

@@ -33,6 +33,7 @@ namespace Oolong
 			tryCleanup();
 		}
 
+		//资源析构函数会调用，然后标记GPU资源待删除，放入删除队列
 		template<typename ResourceType, typename Deleter>
 		void scheduleForDeletion(ResourceType handle, uint64_t frameIndex, Deleter deleter)
 		{
@@ -41,6 +42,7 @@ namespace Oolong
 			};
 
 			std::lock_guard<std::mutex> lock(m_deletionMutex);
+			//frame index 是资源创建的时候的帧序号
 			m_pendingDeletions.emplace_back(deleterFunc, frameIndex);
 		}
 
@@ -48,6 +50,7 @@ namespace Oolong
 		{
 			std::lock_guard<std::mutex> lock(m_deletionMutex);
 
+			//这里假定了GPU比CPU慢3帧
 			const uint64_t safeFrame = m_currentFrame > 3 ? m_currentFrame - 3 : 0;
 
 			auto it = m_pendingDeletions.begin();
