@@ -7,6 +7,11 @@
 
 #include <string>
 
+#include "Core/ResourceManager.h"
+
+//SDL GPU Resource Manager
+Oolong::ResourceManager* resourceManager;
+
 SDL_Window* window;
 SDL_GPUDevice* device;
 SDL_GPUBuffer* vertexBuffer;//顶点缓冲区
@@ -106,48 +111,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 		SDL_ClaimWindowForGPUDevice(device, window);
 	}
 
+	resourceManager = new Oolong::ResourceManager(device);
+
 	//加载着色器代码
 	size_t vertexCodeSize;
 	void* vertexCode = OolongLoadFile(L"shaders/vertex.spv", &vertexCodeSize);
 
-	//创建顶点着色器对象
-	//SDL_GPUShaderCreateInfo vertexInfo{};
-	//vertexInfo.code = (Uint8*)vertexCode;
-	//vertexInfo.code_size = vertexCodeSize;
-	//vertexInfo.entrypoint = "main";
-	//vertexInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
-	//vertexInfo.stage = SDL_GPU_SHADERSTAGE_VERTEX;
-	//vertexInfo.num_samplers = 0;
-	//vertexInfo.num_storage_buffers = 0;
-	//vertexInfo.num_storage_textures = 0;
-	//vertexInfo.num_uniform_buffers = 0;
-	//
-	//SDL_GPUShader* vertexShader = SDL_CreateGPUShader(device, &vertexInfo);
-	//
-	////释放文件
-	//SDL_free(vertexCode);
-
 	//加载片段着色器代码
 	size_t fragmentCodeSize;
 	void* fragmentCode = OolongLoadFile(L"shaders/fragment.spv", &fragmentCodeSize);
-
-	//创建片段着色器
-	//SDL_GPUShaderCreateInfo fragmentInfo{};
-	//fragmentInfo.code = (Uint8*)fragmentCode;
-	//fragmentInfo.code_size = fragmentCodeSize;
-	//fragmentInfo.entrypoint = "main";
-	//fragmentInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
-	//fragmentInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
-	//fragmentInfo.num_samplers = 0;
-	//fragmentInfo.num_storage_buffers = 0;
-	//fragmentInfo.num_storage_textures = 0;
-	//fragmentInfo.num_uniform_buffers = 1;
-	//
-	//SDL_GPUShader* fragmentShader = SDL_CreateGPUShader(device, &fragmentInfo);
-	//
-	////释放文件
-	//SDL_free(fragmentCode);
-
 	
 	SDL_ShaderCross_SPIRV_Info vertexInfo{};
 	vertexInfo.bytecode = (Uint8*)vertexCode;
@@ -352,8 +324,7 @@ void SDL_AppQuit(void* appstate, SDL_AppResult result)
 	// 释放管道
 	SDL_ReleaseGPUGraphicsPipeline(device, graphicsPipeline);
 
-	//销毁GPU设备
-	SDL_DestroyGPUDevice(device);
+	resourceManager->shutDown();
 
 	// destroy the window
 	SDL_DestroyWindow(window);
