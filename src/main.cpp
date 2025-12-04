@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "Core/ResourceManager.h"
+#include <GPUResource/ResourceManager.h>
 
 //SDL GPU Resource Manager
 Oolong::ResourceManager* resourceManager;
