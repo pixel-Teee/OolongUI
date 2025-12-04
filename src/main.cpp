@@ -9,11 +9,11 @@
 
 #include <GPUResource/ResourceManager.h>
 
+#include <Application/Application.h>
+
 //SDL GPU Resource Manager
 Oolong::ResourceManager* resourceManager;
 
-SDL_Window* window;
-SDL_GPUDevice* device;
 SDL_GPUBuffer* vertexBuffer;//顶点缓冲区
 SDL_GPUTransferBuffer* transferBuffer;//复制缓冲区
 SDL_GPUGraphicsPipeline* graphicsPipeline;//图形渲染管线对象
@@ -92,26 +92,8 @@ void* OolongLoadFile(const wchar_t* filePath, size_t* fileSize)
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 {
-	//create a window
-	window = SDL_CreateWindow("Hello, Triangle!", 960, 540, SDL_WINDOW_RESIZABLE);
-
-	//访问GPU设备
-	//1.着色器格式
-	//2.gpu 调试层
-	//3.驱动名称
-	device = SDL_CreateGPUDevice(SDL_ShaderCross_GetSPIRVShaderFormats(), false, NULL);
-	if (device == nullptr)
-	{
-		SDL_LogError(SDL_LogCategory::SDL_LOG_CATEGORY_GPU, "create gpu device error");
-	}
-	else
-	{
-		SDL_LogInfo(SDL_LogCategory::SDL_LOG_CATEGORY_GPU, "create gpu device successful");
-		//关联设备和窗口
-		SDL_ClaimWindowForGPUDevice(device, window);
-	}
-
-	resourceManager = new Oolong::ResourceManager(device);
+	std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();
+	//application->createWindow();
 
 	//加载着色器代码
 	size_t vertexCodeSize;
@@ -129,7 +111,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 
 	SDL_ShaderCross_GraphicsShaderMetadata* vertexMetadata = SDL_ShaderCross_ReflectGraphicsSPIRV((Uint8*)vertexCode, vertexCodeSize, 0);
 
-	SDL_GPUShader* vertexShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(device, &vertexInfo, &vertexMetadata->resource_info, 0);
+	SDL_GPUShader* vertexShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(application->getRenderer()->getGpuDevice(), &vertexInfo, &vertexMetadata->resource_info, 0);
 
 	SDL_free(vertexMetadata);
 
@@ -140,7 +122,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	fragmentInfo.shader_stage = SDL_SHADERCROSS_SHADERSTAGE_FRAGMENT;
 
 	SDL_ShaderCross_GraphicsShaderMetadata* framgentMetadata = SDL_ShaderCross_ReflectGraphicsSPIRV((Uint8*)fragmentCode, fragmentCodeSize, 0);
-	SDL_GPUShader* fragmentShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(device, &fragmentInfo, &framgentMetadata->resource_info, 0);
+	SDL_GPUShader* fragmentShader = SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(application->getRenderer()->getGpuDevice(), &fragmentInfo, &framgentMetadata->resource_info, 0);
 	SDL_free(framgentMetadata);
 	
 	SDL_free(vertexCode);
@@ -190,32 +172,32 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	colorTargetDescriptions[0].blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
 	colorTargetDescriptions[0].blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
 	colorTargetDescriptions[0].blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-	colorTargetDescriptions[0].format = SDL_GetGPUSwapchainTextureFormat(device, window);
+	colorTargetDescriptions[0].format = SDL_GetGPUSwapchainTextureFormat(application->getRenderer()->getGpuDevice(), application->getDefaultWindow());
 
 	pipelineInfo.target_info.num_color_targets = 1;
 	pipelineInfo.target_info.color_target_descriptions = colorTargetDescriptions;
 
 	// 创建管道
-	graphicsPipeline = SDL_CreateGPUGraphicsPipeline(device, &pipelineInfo);
+	graphicsPipeline = SDL_CreateGPUGraphicsPipeline(application->getRenderer()->getGpuDevice(), &pipelineInfo);
 
 	// 创建管道后无需存储着色器
-	SDL_ReleaseGPUShader(device, vertexShader);
-	SDL_ReleaseGPUShader(device, fragmentShader);
+	SDL_ReleaseGPUShader(application->getRenderer()->getGpuDevice(), vertexShader);
+	SDL_ReleaseGPUShader(application->getRenderer()->getGpuDevice(), fragmentShader);
 
 	// 创建顶点缓冲区
 	SDL_GPUBufferCreateInfo bufferInfo{};
 	bufferInfo.size = sizeof(vertices);
 	bufferInfo.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
-	vertexBuffer = SDL_CreateGPUBuffer(device, &bufferInfo);
+	vertexBuffer = SDL_CreateGPUBuffer(application->getRenderer()->getGpuDevice(), &bufferInfo);
 
 	// 创建一个传输缓冲区以上传到顶点缓冲区
 	SDL_GPUTransferBufferCreateInfo transferInfo{};
 	transferInfo.size = sizeof(vertices);
 	transferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-	transferBuffer = SDL_CreateGPUTransferBuffer(device, &transferInfo);
+	transferBuffer = SDL_CreateGPUTransferBuffer(application->getRenderer()->getGpuDevice(), &transferInfo);
 
 	// 填充传输缓冲区
-	Vertex* data = (Vertex*)SDL_MapGPUTransferBuffer(device, transferBuffer, false);
+	Vertex* data = (Vertex*)SDL_MapGPUTransferBuffer(application->getRenderer()->getGpuDevice(), transferBuffer, false);
 
 	SDL_memcpy(data, (void*)vertices, sizeof(vertices));
 
@@ -223,10 +205,10 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	// data[1] = vertices[1]; 
 	// data[2] = vertices[2]; 
 
-	SDL_UnmapGPUTransferBuffer(device, transferBuffer);
+	SDL_UnmapGPUTransferBuffer(application->getRenderer()->getGpuDevice(), transferBuffer);
 
 	// 开始复制过程
-	SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(device);
+	SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(application->getRenderer()->getGpuDevice());
 	SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
 
 	// 数据所在位置
@@ -253,13 +235,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 //update回调
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
+	std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();
+
 	// 获取命令缓冲区
-	SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(device);
+	SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(application->getRenderer()->getGpuDevice());
 
 	// 获取交换链纹理
 	SDL_GPUTexture* swapchainTexture;
 	Uint32 width, height;
-	SDL_WaitAndAcquireGPUSwapchainTexture(commandBuffer, window, &swapchainTexture, &width, &height);
+	SDL_WaitAndAcquireGPUSwapchainTexture(commandBuffer, application->getDefaultWindow(), &swapchainTexture, &width, &height);
 
 	// 如果交换链纹理不可用，则提前结束帧
 	if (swapchainTexture == NULL)
@@ -317,16 +301,14 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
+	std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();
 	// 释放缓冲区
-	SDL_ReleaseGPUBuffer(device, vertexBuffer);
-	SDL_ReleaseGPUTransferBuffer(device, transferBuffer);
+	SDL_ReleaseGPUBuffer(application->getRenderer()->getGpuDevice(), vertexBuffer);
+	SDL_ReleaseGPUTransferBuffer(application->getRenderer()->getGpuDevice(), transferBuffer);
 
 	// 释放管道
-	SDL_ReleaseGPUGraphicsPipeline(device, graphicsPipeline);
+	SDL_ReleaseGPUGraphicsPipeline(application->getRenderer()->getGpuDevice(), graphicsPipeline);
 
-	resourceManager->shutDown();
-
-	// destroy the window
-	SDL_DestroyWindow(window);
+	application->shutDown();
 }
 

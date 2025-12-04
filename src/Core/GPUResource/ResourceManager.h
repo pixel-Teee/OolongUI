@@ -78,6 +78,8 @@ namespace Oolong
 			}
 			m_pendingDeletions.clear();
 		}
+
+		SDL_GPUDevice* getDevice() { return m_device; }
 	private:
 		SDL_GPUDevice* m_device;//device
 		uint64_t m_currentFrame;//一直递增的帧计数器
