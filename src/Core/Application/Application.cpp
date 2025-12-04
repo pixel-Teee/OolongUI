@@ -8,14 +8,11 @@ namespace Oolong
 
 	Application::Application()
 	{
-		createWindow();
+		SDL_Init(SDL_INIT_VIDEO);
 		//create renderer
 		m_renderer = std::make_shared<Renderer>();
 
-		SDL_Window* defaultWindow = getDefaultWindow();
-		//关联 device 和 window
-		SDL_GPUDevice* gpuDevice = getRenderer()->getGpuDevice();
-		SDL_ClaimWindowForGPUDevice(gpuDevice, defaultWindow);
+		createWindow();
 	}
 
 	Application::~Application()
@@ -36,6 +33,10 @@ namespace Oolong
 		}
 
 		m_platformWindows.push_back(platformWindow);
+
+		//关联 window 和 gpu device
+		SDL_GPUDevice* gpuDevice = getRenderer()->getGpuDevice();
+		SDL_ClaimWindowForGPUDevice(gpuDevice, platformWindow);
 	}
 
 	SDL_Window* Application::getDefaultWindow() const
