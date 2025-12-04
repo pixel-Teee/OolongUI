@@ -34,7 +34,7 @@ namespace Oolong
 
 		m_platformWindows.push_back(platformWindow);
 
-		//¹ØÁª window ºÍ gpu device
+		//å…³è” window å’Œ gpu device
 		SDL_GPUDevice* gpuDevice = getRenderer()->getGpuDevice();
 		SDL_ClaimWindowForGPUDevice(gpuDevice, platformWindow);
 	}
