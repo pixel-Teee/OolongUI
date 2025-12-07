@@ -6,7 +6,9 @@ file(GLOB SourceFile "main.cpp"
 "Core/Application/*.h"
 "Core/Application/*.cpp"
 "Core/Renderer/*.h"
-"Core/Renderer/*.cpp")
+"Core/Renderer/*.cpp"
+"Core/File/*.h"
+"Core/File/*.cpp")
 
 add_executable(OolongUI ${SourceFile})
 

@@ -3,15 +3,16 @@
 #include <SDL3/SDL.h>
 #include <SDL3_shadercross/SDL_shadercross.h>//SDL_ShaderCross_GetSPIRVShaderFormats
 
+#include <Application/Demo.h>
+
 namespace Oolong
 {
 
 	Renderer::Renderer()
 	{
 		m_gpuDevice = SDL_CreateGPUDevice(SDL_ShaderCross_GetSPIRVShaderFormats(), false, NULL);
-		//const char* errorInfo = SDL_GetError();
-		//SDL_LogError(SDL_LogCategory::SDL_LOG_CATEGORY_ERROR, errorInfo);
-		m_gpuResourceManager = std::make_shared<ResourceManager>(m_gpuDevice);
+
+		m_gpuResourceManager = std::make_shared<ResourceManager>(m_gpuDevice);	
 	}
 
 	Renderer::~Renderer()
@@ -21,7 +22,14 @@ namespace Oolong
 
 	void Renderer::tick(float deltaTime)
 	{
+		m_testDemo->tick();
 
+		m_gpuResourceManager->tryCleanup();
+	}
+
+	void Renderer::createDemo()
+	{
+		m_testDemo = std::make_shared<Demo>();
 	}
 
 	void Renderer::renderUI()
@@ -40,6 +48,11 @@ namespace Oolong
 	SDL_GPUDevice* Renderer::getGpuDevice() const
 	{
 		return m_gpuDevice;
+	}
+
+	std::shared_ptr<ResourceManager> Renderer::getResourceManager()
+	{
+		return m_gpuResourceManager;
 	}
 
 }

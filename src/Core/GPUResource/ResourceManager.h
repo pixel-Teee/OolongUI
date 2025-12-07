@@ -6,6 +6,8 @@
 #include "PendingDeletion.h"
 #include "ResourceWrapper.h"
 
+#include <GPUResource/DefaultDeleter.h>
+
 namespace Oolong
 {
 	class ResourceManager
@@ -16,12 +18,12 @@ namespace Oolong
 			, m_currentFrame(0)
 		{}
 
-		template<typename ResourceType, typename Deleter>
+		template<typename ResourceType, typename Deleter = DefaultDeleter<ResourceType>>
 		std::shared_ptr<ResourceWrapper<ResourceType, Deleter>>
-			registerResource(ResourceType handle, Deleter deleter)
+			registerResource(ResourceType handle, Deleter deleter = DefaultDeleter<ResourceType>{})
 		{
-			auto wrapper = std::make_shared<ResourceWrapper<ResourceType, Deleter>>
-				(handle, this, m_currentFrame);
+			auto wrapper = std::make_shared<ResourceWrapper<ResourceType, std::decay_t<Deleter>>>
+				(handle, std::forward<Deleter>(deleter), this, m_currentFrame);
 			return wrapper;
 		}
 
@@ -38,7 +40,7 @@ namespace Oolong
 		void scheduleForDeletion(ResourceType handle, uint64_t frameIndex, Deleter deleter)
 		{
 			auto deleterFunc = [this, handle, deleter]() {
-				deleter(m_device, handle, nullptr); //调用真正的GPU销毁函数
+				deleter(m_device, handle); //调用真正的GPU销毁函数
 			};
 
 			std::lock_guard<std::mutex> lock(m_deletionMutex);

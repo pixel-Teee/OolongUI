@@ -13,6 +13,7 @@ namespace Oolong
 		m_renderer = std::make_shared<Renderer>();
 
 		createWindow();
+
 	}
 
 	Application::~Application()
@@ -57,9 +58,13 @@ namespace Oolong
 		return m_renderer;
 	}
 
-	void Application::tick(float deltaTime)
+	void Application::tick()
 	{
-		m_renderer->tick(deltaTime);
+		m_currentTime = SDL_GetTicks();
+
+		m_renderer->tick(m_currentTime - m_lastTime);
+
+		m_lastTime = m_currentTime;
 	}
 
 	void Application::shutDown()
@@ -70,6 +75,11 @@ namespace Oolong
 		{
 			SDL_DestroyWindow(m_platformWindows[i]);
 		}
+	}
+
+	void Application::createDemo()
+	{
+		m_renderer->createDemo();
 	}
 
 }
