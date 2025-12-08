@@ -24,13 +24,18 @@ namespace Oolong
 
 		std::shared_ptr<Renderer> getRenderer();
 
-		void tick(float deltaTime);
+		void tick();
 
 		void shutDown();
+
+		void createDemo();
 	private:
 		//window array
 		std::vector<SDL_Window*> m_platformWindows;
 
 		std::shared_ptr<Renderer> m_renderer;
+
+		uint64_t m_lastTime = 0;
+		uint64_t m_currentTime = 0;
 	};
 }
