@@ -6,6 +6,7 @@
 #include <string>
 #include <GPUResource/ResourceManager.h>
 #include <Application/Application.h>
+#include <Str/utf8.h>
 
 //SDL是[-1, 1]NDC坐标
 
@@ -13,6 +14,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 {
 	std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();
 	application->createDemo();
+
+	//test create utf8 string
+	//std::string testStr = u8"effect bad喜欢";
+	//char* ptr = &testStr[0];
+	//char* end = ptr + testStr.size();
+	//while (ptr < end)
+	//{
+	//	uint32_t codePoint = utf8::next(ptr, end);
+	//	char utf8Char[5] = { 0 };
+	//	char* utf8End = utf8::append(codePoint, utf8Char);
+	//	SDL_LogInfo(SDL_LogCategory::SDL_LOG_CATEGORY_APPLICATION, utf8Char);
+	//}
+
 	return SDL_APP_CONTINUE;
 }
 
