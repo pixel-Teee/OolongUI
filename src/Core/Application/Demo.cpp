@@ -14,9 +14,9 @@ namespace Oolong
 	{
 		//vertex list
 		std::vector<Vertex> vertices = {
-			{ 0.0f , 0.5f , 0.0f , 1.0f , 0.0f , 0.0f , 1.0f }, //top vertex
-			{ -0.5f , -0.5f , 0.0f , 1.0f , 1.0f , 0.0f , 1.0f }, //left bottom vertex
-			{ 0.5f , -0.5f , 0.0f , 1.0f , 0.0f , 1.0f , 1.0f } //right bottom vertex
+			{ float3(0.0f , 0.5f , 0.0f) , float4(1.0f , 0.0f , 0.0f , 1.0f)}, //top vertex
+			{ float3(-0.5f , -0.5f , 0.0f) , float4(1.0f , 1.0f , 0.0f , 1.0f) }, //left bottom vertex
+			{ float3(0.5f , -0.5f , 0.0f) , float4(1.0f , 0.0f , 1.0f , 1.0f) } //right bottom vertex
 		};
 
 		std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();

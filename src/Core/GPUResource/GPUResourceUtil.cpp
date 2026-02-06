@@ -50,9 +50,9 @@ namespace Oolong
 		SDL_EndGPUCopyPass(copyPass);
 		SDL_SubmitGPUCommandBuffer(commandBuffer);
 
-		auto transferBufferPtr = resourceManager->registerResource(
-			transferBuffer
-		);
+		//auto transferBufferPtr = resourceManager->registerResource(
+		//	transferBuffer
+		//);
 		
 		return resourceManager->registerResource(vertexBuffer);
 	}

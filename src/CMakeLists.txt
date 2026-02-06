@@ -10,9 +10,18 @@ file(GLOB SourceFile "main.cpp"
 "Core/File/*.h"
 "Core/File/*.cpp"
 "Core/Str/*.h"
-"Core/Str/utf8/*.h")
+"Core/Str/utf8/*.h"
+"Core/Widget/*.h"
+"Core/Widget/*.cpp"
+"Core/Math/*.h"
+"Core/Math/*.cpp")
 
 add_executable(OolongUI ${SourceFile})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} 
+    PREFIX "Source Files"
+    FILES ${SourceFile}
+)
 
 target_link_libraries(OolongUI PRIVATE SDL3::SDL3 PRIVATE SDL3_shadercross-static)
 

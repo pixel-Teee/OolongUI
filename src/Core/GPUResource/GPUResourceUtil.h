@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-
+#include <Math/myMath.h>
 #include <GPUResource/ResourceWrapper.h>
 
 namespace Oolong
@@ -10,8 +10,10 @@ namespace Oolong
 	//vertex layout
 	struct Vertex
 	{
-		float x, y, z;//vec3 position
-		float r, g, b, a;//vec4 color
+		//vec3 position
+		float3 position;
+		//vec4 color
+		float4 color;
 	};
 
 	struct  UniformBuffer
