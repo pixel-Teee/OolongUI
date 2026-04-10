@@ -23,5 +23,5 @@ namespace Oolong
 	};
 
 	//create vertex gpu buffer
-	std::shared_ptr<ResourceWrapper<SDL_GPUBuffer*>> createVertexBuffer(std::vector<Vertex> vertexData);
+	ResourceWrapperPtr<SDL_GPUBuffer*> createVertexBuffer(std::vector<Vertex> vertexData);
 }

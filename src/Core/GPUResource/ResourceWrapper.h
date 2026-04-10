@@ -47,4 +47,7 @@ namespace Oolong
 		uint64_t m_createFrame;//资源创建的帧序号，用于垃圾回收
 		Deleter m_deleter;
 	};
+
+	template<typename ResourceType>
+	using ResourceWrapperPtr = std::shared_ptr<ResourceWrapper<ResourceType, DefaultDeleter<ResourceType>>>;
 }

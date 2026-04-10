@@ -18,9 +18,9 @@ namespace Oolong
 		void tick();
 	private:
 		//------triangle pipeline------
-		std::shared_ptr<ResourceWrapper<SDL_GPUGraphicsPipeline*>> m_trianglePipeline;
+		ResourceWrapperPtr<SDL_GPUGraphicsPipeline*> m_trianglePipeline;
 
-		std::shared_ptr<ResourceWrapper<SDL_GPUBuffer*>> m_vertexBuffer;
+		ResourceWrapperPtr<SDL_GPUBuffer*> m_vertexBuffer;
 
 		UniformBuffer m_uniformBuffer;
 		//------triangle pipeline------

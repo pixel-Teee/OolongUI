@@ -5,7 +5,12 @@
 namespace Oolong
 {
 	template<typename ResourceType>
-	struct DefaultDeleter;
+	struct DefaultDeleter
+	{
+		static_assert(sizeof(ResourceType) == 0,
+			"DefaultDeleter is not specialized for this resource type. "
+			"Please add a specialization in DefaultDeleter.h.");
+	};
 
 	template<>
 	struct DefaultDeleter<SDL_GPUShader*>

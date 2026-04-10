@@ -19,7 +19,7 @@ namespace Oolong
 		{}
 
 		template<typename ResourceType, typename Deleter = DefaultDeleter<ResourceType>>
-		std::shared_ptr<ResourceWrapper<ResourceType, Deleter>>
+		ResourceWrapperPtr<ResourceType>
 			registerResource(ResourceType handle, Deleter deleter = DefaultDeleter<ResourceType>{})
 		{
 			auto wrapper = std::make_shared<ResourceWrapper<ResourceType, std::decay_t<Deleter>>>

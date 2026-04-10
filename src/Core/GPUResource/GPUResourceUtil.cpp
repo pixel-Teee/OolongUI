@@ -5,7 +5,7 @@
 
 namespace Oolong
 {
-	std::shared_ptr<ResourceWrapper<SDL_GPUBuffer*>> createVertexBuffer(std::vector<Vertex> vertexData)
+	ResourceWrapperPtr<SDL_GPUBuffer*> createVertexBuffer(std::vector<Vertex> vertexData)
 	{
 		std::shared_ptr<Oolong::Application> application = Oolong::Application::getApplication();
 		std::shared_ptr<Oolong::ResourceManager> resourceManager = application->getRenderer()->getResourceManager();
@@ -50,9 +50,8 @@ namespace Oolong
 		SDL_EndGPUCopyPass(copyPass);
 		SDL_SubmitGPUCommandBuffer(commandBuffer);
 
-		//auto transferBufferPtr = resourceManager->registerResource(
-		//	transferBuffer
-		//);
+		ResourceWrapperPtr<SDL_GPUTransferBuffer*> transferBufferPtr =
+    	resourceManager->registerResource(transferBuffer);
 		
 		return resourceManager->registerResource(vertexBuffer);
 	}
