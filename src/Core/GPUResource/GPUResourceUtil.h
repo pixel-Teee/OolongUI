@@ -16,7 +16,7 @@ namespace Oolong
 		float4 color;
 	};
 
-	struct  UniformBuffer
+	struct UniformBuffer
 	{
 		float time;
 		//你可以在这里添加其他属性
