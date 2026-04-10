@@ -131,4 +131,111 @@ namespace Oolong
 		DEFINE_CONCRETE_VECTORS(short);
 
 #undef DEFINE_CONCRETE_VECTORS
+
+
+	//重载数学操作(一元运算符)
+#define DEFINE_UNARY_OPERATOR(op) \
+	template<typename T> constexpr vector<T, 2> operator op (const vector<T, 2>& a) \
+	{ return vector<T, 2>(op a.x, op a.y); } \
+	template<typename T> constexpr vector<T, 3> operator op (const vector<T, 3>& a) \
+	{ return vector<T, 3>(op a.x, op a.y, op a.z); } \
+	template<typename T> constexpr vector<T, 4> operator op (const vector<T, 4>& a) \
+	{ return vector<T, 4>(op a.x, op a.y, op a.z, op a.w); }
+
+	//二元运算符
+#define DEFINE_BINARY_OPERATORS(op) \
+	/* Vector-vector op */ \
+	template<typename T> constexpr vector<T, 2> operator op (const vector<T, 2>& a, const vector<T, 2>& b) \
+	{ return vector<T, 2>(a.x op b.x, a.y op b.y); } \
+	template<typename T> constexpr vector<T, 3> operator op (const vector<T, 3>& a, const vector<T, 3>& b) \
+	{ return vector<T, 3>(a.x op b.x, a.y op b.y, a.z op b.z); } \
+	template<typename T> constexpr vector<T, 4> operator op (const vector<T, 4>& a, const vector<T, 4>& b) \
+	{ return vector<T, 4>(a.x op b.x, a.y op b.y, a.z op b.z, a.w op b.w); } \
+	/* Scalar-vector op */ \
+	template<typename T> constexpr vector<T, 2> operator op (T a, const vector<T, 2>& b) \
+	{ return vector<T, 2>(a op b.x, a op b.y); } \
+	template<typename T> constexpr vector<T, 3> operator op (T a, const vector<T, 3>& b) \
+	{ return vector<T, 3>(a op b.x, a op b.y, a op b.z); } \
+	template<typename T> constexpr vector<T, 4> operator op (T a, const vector<T, 4>& b) \
+	{ return vector<T, 4>(a op b.x, a op b.y, a op b.z, a op b.w); } \
+	/* Vector-scalar op */ \
+	template<typename T> constexpr vector<T, 2> operator op (const vector<T, 2>& a, T b) \
+	{ return vector<T, 2>(a.x op b, a.y op b); } \
+	template<typename T> constexpr vector<T, 3> operator op (const vector<T, 3>& a, T b) \
+	{ return vector<T, 3>(a.x op b, a.y op b, a.z op b); } \
+	template<typename T> constexpr vector<T, 4> operator op (const vector<T, 4>& a, T b) \
+	{ return vector<T, 4>(a.x op b, a.y op b, a.z op b, a.w op b); }
+
+	//就地运算符，直接返回修改的当前对象
+#define DEFINE_INPLACE_OPERATORS(op) \
+	/* Vector-vector op */ \
+	template<typename T> vector<T, 2> operator op (vector<T, 2>& a, const vector<T, 2>& b) \
+	{ a.x op b.x; a.y op b.y; return a; } \
+	template<typename T> vector<T, 3> operator op (vector<T, 3>& a, const vector<T, 3>& b) \
+	{ a.x op b.x; a.y op b.y; a.z op b.z; return a; } \
+	template<typename T> vector<T, 4> operator op (vector<T, 4>& a, const vector<T, 4>& b) \
+	{ a.x op b.x; a.y op b.y; a.z op b.z; a.w op b.w; return a; } \
+	/* Vector-scalar op */ \
+	template<typename T> vector<T, 2> operator op (vector<T, 2>& a, T b) \
+	{ a.x op b; a.y op b; return a; } \
+	template<typename T> vector<T, 3> operator op (vector<T, 3>& a, T b) \
+	{ a.x op b; a.y op b; a.z op b; return a; } \
+	template<typename T> vector<T, 4> operator op (vector<T, 4>& a, T b) \
+	{ a.x op b; a.y op b; a.z op b; a.w op b; return a; }
+
+	//关系运算符
+#define DEFINE_RELATIONAL_OPERATORS(op) \
+	/* Vector-vector op */ \
+	template<typename T> constexpr vector<bool, 2> operator op (const vector<T, 2>& a, const vector<T, 2>& b) \
+	{ return vector<bool, 2>(a.x op b.x, a.y op b.y); } \
+	template<typename T> constexpr vector<bool, 3> operator op (const vector<T, 3>& a, const vector<T, 3>& b) \
+	{ return vector<bool, 3>(a.x op b.x, a.y op b.y, a.z op b.z); } \
+	template<typename T> constexpr vector<bool, 4> operator op (const vector<T, 4>& a, const vector<T, 4>& b) \
+	{ return vector<bool, 4>(a.x op b.x, a.y op b.y, a.z op b.z, a.w op b.w); } \
+	/* Scalar-vector op */ \
+	template<typename T> constexpr vector<bool, 2> operator op (T a, const vector<T, 2>& b) \
+	{ return vector<bool, 2>(a op b.x, a op b.y); } \
+	template<typename T> constexpr vector<bool, 3> operator op (T a, const vector<T, 3>& b) \
+	{ return vector<bool, 3>(a op b.x, a op b.y, a op b.z); } \
+	template<typename T> constexpr vector<bool, 4> operator op (T a, const vector<T, 4>& b) \
+	{ return vector<bool, 4>(a op b.x, a op b.y, a op b.z, a op b.w); } \
+	/* Vector-scalar op */ \
+	template<typename T> constexpr vector<bool, 2> operator op (const vector<T, 2>& a, T b) \
+	{ return vector<bool, 2>(a.x op b, a.y op b); } \
+	template<typename T> constexpr vector<bool, 3> operator op (const vector<T, 3>& a, T b) \
+	{ return vector<bool, 3>(a.x op b, a.y op b, a.z op b); } \
+	template<typename T> constexpr vector<bool, 4> operator op (const vector<T, 4>& a, T b) \
+	{ return vector<bool, 4>(a.x op b, a.y op b, a.z op b, a.w op b); }
+
+DEFINE_BINARY_OPERATORS(+);
+DEFINE_BINARY_OPERATORS(-);
+DEFINE_UNARY_OPERATOR(-);
+DEFINE_BINARY_OPERATORS(*);
+DEFINE_BINARY_OPERATORS(/);
+DEFINE_BINARY_OPERATORS(&);
+DEFINE_BINARY_OPERATORS(|);
+DEFINE_BINARY_OPERATORS(^);
+DEFINE_UNARY_OPERATOR(!);
+DEFINE_UNARY_OPERATOR(~);
+
+DEFINE_INPLACE_OPERATORS(+=);
+DEFINE_INPLACE_OPERATORS(-=);
+DEFINE_INPLACE_OPERATORS(*=);
+DEFINE_INPLACE_OPERATORS(/=);
+DEFINE_INPLACE_OPERATORS(&=);
+DEFINE_INPLACE_OPERATORS(|=);
+DEFINE_INPLACE_OPERATORS(^=);
+
+DEFINE_RELATIONAL_OPERATORS(==);
+DEFINE_RELATIONAL_OPERATORS(!=);
+DEFINE_RELATIONAL_OPERATORS(<);
+DEFINE_RELATIONAL_OPERATORS(>);
+DEFINE_RELATIONAL_OPERATORS(<=);
+DEFINE_RELATIONAL_OPERATORS(>=);
+
+#undef DEFINE_UNARY_OPERATOR
+#undef DEFINE_BINARY_OPERATORS
+#undef DEFINE_INPLACE_OPERATORS
+#undef DEFINE_RELATIONAL_OPERATORS
+
 }
